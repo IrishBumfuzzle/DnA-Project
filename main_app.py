@@ -228,11 +228,75 @@ def print_header():
 
 # --- Main CLI ---
 def main():
-    # Initial startup screen
-    print_header()
-    print("Welcome to the SCP Foundation Database Terminal.\n")
-    user = input("MySQL User: ")
-    password = getpass("MySQL Password: ")
+    clear_screen()
+    
+    # Split the logo into lines
+    logo_lines = SCP_LOGO.split('\n')
+    
+    # Print title
+    print("=" * 100)
+    print("SCP FOUNDATION DATABASE TERMINAL".center(100))
+    print("=" * 100)
+    print()
+    
+    # Define the login form lines
+    login_form = [
+        "",
+        "╔════════════════════════════════╗",
+        "║  AUTHENTICATION REQUIRED       ║",
+        "╚════════════════════════════════╝",
+        "",
+        "MySQL Username: ",
+        "",
+        "MySQL Password: "
+    ]
+    
+    # Calculate where to start the login form vertically (middle of logo)
+    start_line = (len(logo_lines) - len(login_form)) // 2
+    
+    # Print logo with login form aligned to the right
+    for i, line in enumerate(logo_lines):
+        print(line, end="")
+        
+        # Add login form content on the right at appropriate lines
+        form_index = i - start_line
+        if 0 <= form_index < len(login_form):
+            print("    " + login_form[form_index], end="")
+        
+        print()  # Newline after each row
+    
+    # Now we need to go back and capture the inputs
+    # Calculate cursor position for username input
+    username_row = start_line + 5  # The "MySQL Username: " line
+    password_row = start_line + 7  # The "MySQL Password: " line
+    
+    # Move cursor up to username line
+    lines_to_move_up = len(logo_lines) - username_row
+    print(f"\033[{lines_to_move_up}A", end="")  # Move cursor up
+    print(f"\033[{len(logo_lines[0]) + 4 + len('MySQL Username: ')}C", end="")  # Move cursor right
+    
+    # Get username
+    sys.stdout.flush()
+    user = input()
+    
+    # After input, cursor is at beginning of next line
+    # Move cursor to password line (accounting for where we are now)
+    lines_down = password_row - username_row - 1  # -1 because input already moved us down one
+    if lines_down > 0:
+        print(f"\033[{lines_down}B", end="")  # Move down
+    print(f"\033[{len(logo_lines[0]) + 4 + len('MySQL Password: ')}C", end="")  # Move right from start
+    
+    # Get password
+    sys.stdout.flush()
+    password = getpass("")
+    
+    # Move cursor to bottom (we're already 1 line below password line)
+    lines_to_bottom = len(logo_lines) - password_row - 1
+    if lines_to_bottom > 0:
+        print(f"\033[{lines_to_bottom}B")
+    
+    print()
+    print("Connecting to database...".center(100))
     
     conn = get_db_connection(user, password)
     if not conn:
@@ -240,8 +304,8 @@ def main():
     
     input("\nPress ENTER to continue...")
 
+    # Rest of your menu code stays the same
     while True:
-        # Clear screen and show logo + menu
         print_header()
         print("========== MAIN MENU ==========")
         print("1. [READ] Find Anomalies by Facility")
