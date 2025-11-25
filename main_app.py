@@ -21,7 +21,7 @@ def get_db_connection(user, password, host='localhost', db='scp_foundation_db'):
 
 # --- READ Operations (Analysis & Selection) ---
 
-# Req: Retrieve all anomalies of a class given a facility [cite: 172]
+# Req: Retrieve all anomalies of a class given a facility 
 def get_anomalies_by_facility(conn):
     print("\n--- Retrieve Anomalies by Class & Facility ---")
     facility_id = input("Enter Facility ID (e.g., 19): ")
@@ -40,7 +40,7 @@ def get_anomalies_by_facility(conn):
         for row in results:
             print(f"ID: {row['scp_id']} | Title: {row['title']} | Risk: {row['risk_level']}")
 
-# Req: Retrieving personnel with a certain clearance level [cite: 173]
+# Req: Retrieving personnel with a certain clearance level 
 def get_personnel_by_clearance(conn):
     print("\n--- Personnel by Clearance Level ---")
     level = input("Enter Minimum Clearance Level (1-5): ")
@@ -58,7 +58,7 @@ def get_personnel_by_clearance(conn):
         for row in results:
             print(f"ID: {row['personnel_id']} | Name: {row['first_name']} {row['last_name']} | Level: {row['clearance_level']} | Site: {row['facility_name']}")
 
-# Req: Last breach in 30 days [cite: 174]
+# Req: Last breach in 30 days 
 def get_recent_breaches(conn):
     print("\n--- Breaches in Last 30 Days ---")
     sql = """
@@ -75,7 +75,7 @@ def get_recent_breaches(conn):
         for row in results:
             print(f"Date: {row['report_date']} | SCP: {row['scp_id']} ({row['object_class']}) | Summary: {row['summary']}")
 
-# Req: Number of SCPs per facility (Aggregator) [cite: 182]
+# Req: Number of SCPs per facility (Aggregator) 
 def get_scps_per_facility(conn):
     print("\n--- Containment Load (SCPs per Facility) ---")
     sql = """
@@ -90,7 +90,7 @@ def get_scps_per_facility(conn):
         for row in results:
             print(f"Facility: {row['facility_name']} | Count: {row['scp_count']}")
 
-# Req: SCP Report Analysis (Complex Join) [cite: 187]
+# Req: SCP Report Analysis (Complex Join) 
 def generate_scp_report(conn):
     print("\n--- Detailed SCP Report ---")
     scp_input = input("Enter SCP ID (e.g., SCP-682): ")
@@ -120,7 +120,7 @@ def generate_scp_report(conn):
 
 # --- WRITE Operations (Insert, Update, Delete) ---
 
-# Req: Insert new Personnel [cite: 192]
+# Req: Insert new Personnel 
 def insert_personnel(conn):
     print("\n--- Onboard New Personnel ---")
     try:
@@ -153,7 +153,7 @@ def insert_personnel(conn):
     except Exception as e:
         print(f"Error inserting personnel: {e}")
 
-# Req: Update clearance level [cite: 199]
+# Req: Update clearance level 
 def update_clearance(conn):
     print("\n--- Promote Personnel ---")
     pid = input("Enter Personnel ID: ")
@@ -170,7 +170,7 @@ def update_clearance(conn):
     except Exception as e:
         print(f"Error updating: {e}")
 
-# Req: Delete personnel (KIA/MIA) [cite: 204]
+# Req: Delete personnel (KIA/MIA) 
 def delete_personnel(conn):
     print("\n--- Report Personnel Deceased/MIA ---")
     pid = input("Enter Personnel ID to remove: ")
