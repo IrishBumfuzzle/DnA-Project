@@ -1,7 +1,9 @@
 import pymysql
 import sys
 from getpass import getpass
+import os
 
+SCP_LOGO = "⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿\n⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿\n⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⣴⣤⣤⣤⣤⣤⡄⢹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿\n⣿⣿⣿⣿⣿⣿⣿⠟⢋⣵⣿⣿⣿⡿⠛⣩⣤⣿⣿⣿⣿⣿⣿⣿⣬⣙⠻⣿⣿⣿⣷⡍⠛⢿⣿⣿⣿⣿⣿⣿\n⣿⣿⣿⣿⠟⢹⠃⣠⣾⣿⣿⡿⢋⣴⣿⣿⣿⣿⠿⠿⠈⠿⢿⣿⣿⣿⣷⣤⡙⣿⣿⣿⢦⡀⢣⠙⣿⣿⣿⣿\n⣿⣿⡿⡿⠀⡯⠊⣡⣿⣿⠏⣴⣿⣿⣿⠟⠁⣀⣤⣤⠀⣤⣤⡀⠙⠻⣿⣿⣿⣌⢻⣿⣧⡉⠺⡄⢸⠹⣿⣿\n⣿⣿⠃⢷⠀⡠⢺⣿⣿⡏⣰⣿⣿⡟⠁⣠⣾⣿⣿⠿⠀⠿⣿⣿⣷⡄⠘⣿⣿⣿⡄⣿⣿⣯⠢⡀⢸⠀⢹⣿\n⣿⣿⠀⢸⠊⣠⣿⣿⣿⢀⣿⣿⣿⠁⣰⣿⣿⣿⣿⣆⢀⣼⣿⣿⣿⣿⡄⢸⣿⣿⣿⣹⣿⣿⣦⠈⢺⠀⢸⣿\n⣿⠹⡆⠀⣴⢻⣿⣿⣿⢸⣿⣿⣿⠀⣿⣿⡿⠿⠿⢿⣿⠿⠿⠿⣿⣿⡇⢈⣿⣿⣿⠀⣿⣿⣿⠳⡀⢀⡇⢸\n⣿⡀⠹⣸⠉⣿⣿⡿⢋⣠⣿⣿⣿⡀⠸⠟⢋⣀⢠⣾⣿⣷⡀⣀⡙⠻⠁⢸⣿⣿⣿⣈⠻⣿⣿⡄⠹⡜⠀⣸\n⣿⢧⠀⠇⢠⣿⣿⣷⡘⣿⣿⣿⣟⣁⡀⠘⢿⣿⣿⣿⣿⣿⣿⣿⠿⠀⣠⣉⣿⣿⣿⡿⢠⣿⡿⢧⠀⠁⣰⢿\n⣿⡌⢷⡄⣾⠀⣿⣿⣷⡜⢿⣿⣿⣿⣿⣦⣄⠈⠉⠛⠛⠛⠉⢁⣠⣾⣿⣿⣿⣿⡟⣰⣿⣿⡇⢸⢀⡴⠃⣼\n⣿⣷⣄⠙⢿⠀⣿⢿⣿⣿⣌⠿⠟⡻⣿⣿⣿⣿⣷⣶⣶⣶⣿⣿⣿⣿⡿⠛⠿⠟⣼⣿⡿⢫⠃⢸⠋⢀⣼⣿\n⣿⣿⣟⣶⣄⡀⢸⡀⢻⣿⣿⣾⣿⣿⣶⣍⣙⠛⠿⠿⠿⠿⠿⠛⣋⣥⣶⣿⣿⣾⣿⣿⠁⣸⢀⣴⣶⣯⣿⣿\n⣿⣿⣿⣿⣿⣿⠾⣧⠀⢯⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣿⣿⣿⣿⣿⣿⣿⣿⡿⢫⠃⢠⢷⣛⣉⣽⣿⣿⣿\n⣿⣿⣿⣿⣿⣿⣿⣄⣁⡈⢧⠈⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠋⣠⢋⣀⣠⣴⣾⣿⣿⣿⣿⣿\n⣿⣿⣿⣿⣿⣿⣿⣯⣉⠉⠉⠉⣀⣀⡭⠟⠛⢛⣛⠛⠛⠛⣛⠛⠛⠩⣥⣀⣈⢁⢀⣀⣴⣿⣿⣿⣿⣿⣿⣿\n⣿⣿⣿⣿⣿⣿⣿⣿⣿⣯⣝⡛⢉⣁⣀⣤⠖⣫⣴⣿⣿⣷⣬⡙⣦⣤⣀⡈⣉⣩⣯⣿⣿⣿⣿⣿⣿⣿⣿⣿\n⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⣼⣿⣿⣿⣿⣿⣿⣿⣧⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿\n⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿"
 # --- Configuration ---
 def get_db_connection(user, password, host='localhost', db='scp_foundation_db'):
     try:
@@ -188,17 +190,60 @@ def delete_personnel(conn):
         print(f"Error deleting: {e}")
 
 # --- Main CLI ---
+
+# --- Utility Functions ---
+def clear_screen():
+    """Clear the terminal screen"""
+    os.system('clear' if os.name != 'nt' else 'cls')
+
+def wait_for_esc():
+    """Wait for ESC key press to continue"""
+    print("\n" + "="*80)
+    print("Press [ESC] to go back to main menu...")
+    while True:
+        try:
+            import termios
+            import tty
+            fd = sys.stdin.fileno()
+            old_settings = termios.tcgetattr(fd)
+            try:
+                tty.setraw(fd)
+                ch = sys.stdin.read(1)
+                if ch == '\x1b':  # ESC key
+                    break
+            finally:
+                termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+        except:
+            # Fallback for systems without termios
+            input("Press ENTER to go back...")
+            break
+
+def print_header():
+    """Print SCP logo and header"""
+    clear_screen()
+    print(SCP_LOGO)
+    print()
+
+# ...existing code...
+
+# --- Main CLI ---
 def main():
-    print("Welcome to the SCP Foundation Database Terminal.")
+    # Initial startup screen
+    print_header()
+    print("Welcome to the SCP Foundation Database Terminal.\n")
     user = input("MySQL User: ")
     password = getpass("MySQL Password: ")
     
     conn = get_db_connection(user, password)
     if not conn:
         sys.exit(1)
+    
+    input("\nPress ENTER to continue...")
 
     while True:
-        print("\n========== MAIN MENU ==========")
+        # Clear screen and show logo + menu
+        print_header()
+        print("========== MAIN MENU ==========")
         print("1. [READ] Find Anomalies by Facility")
         print("2. [READ] Find Personnel by Clearance")
         print("3. [READ] Recent Breaches (30 Days)")
@@ -208,22 +253,50 @@ def main():
         print("7. [WRITE] Promote Personnel")
         print("8. [WRITE] Remove Personnel")
         print("q. Quit")
+        print()
         
         choice = input("Enter command: ").strip().lower()
         
-        if choice == '1': get_anomalies_by_facility(conn)
-        elif choice == '2': get_personnel_by_clearance(conn)
-        elif choice == '3': get_recent_breaches(conn)
-        elif choice == '4': get_scps_per_facility(conn)
-        elif choice == '5': generate_scp_report(conn)
-        elif choice == '6': insert_personnel(conn)
-        elif choice == '7': update_clearance(conn)
-        elif choice == '8': delete_personnel(conn)
+        if choice == '1':
+            clear_screen()
+            get_anomalies_by_facility(conn)
+            wait_for_esc()
+        elif choice == '2':
+            clear_screen()
+            get_personnel_by_clearance(conn)
+            wait_for_esc()
+        elif choice == '3':
+            clear_screen()
+            get_recent_breaches(conn)
+            wait_for_esc()
+        elif choice == '4':
+            clear_screen()
+            get_scps_per_facility(conn)
+            wait_for_esc()
+        elif choice == '5':
+            clear_screen()
+            generate_scp_report(conn)
+            wait_for_esc()
+        elif choice == '6':
+            clear_screen()
+            insert_personnel(conn)
+            wait_for_esc()
+        elif choice == '7':
+            clear_screen()
+            update_clearance(conn)
+            wait_for_esc()
+        elif choice == '8':
+            clear_screen()
+            delete_personnel(conn)
+            wait_for_esc()
         elif choice == 'q': 
+            clear_screen()
             conn.close()
+            print("Connection terminated. Stay safe.")
             break
         else:
             print("Invalid command.")
+            input("Press ENTER to continue...")
 
 if __name__ == "__main__":
     main()
